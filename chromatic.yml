@@ -1,0 +1,53 @@
+# NOTE: https://www.chromatic.com/docs/github-actions 권장사항을 따름
+name: 'Chromatic'
+
+  # NOTE: pull_request 트리거는 git의 head를 알 수 없어 turbosnap이 동작하지 못한다고 한다. https://www.chromatic.com/docs/turbosnap
+on:
+  workflow_call:
+    secrets:
+      projectToken:
+        required: true
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Required to retrieve git history
+
+      - name: Cache node modules
+        id: node-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install dependencies
+        run: npm ci
+        if: steps.node-cache.outputs.cache-hit != 'true'
+
+      - name: Publish to Chromatic (main/develop)
+        if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.projectToken }}
+          autoAcceptChanges: true # main/develop 브랜치는 변경사항 모두 accept
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
+          onlyChanged: true
+
+      - name: Publish to Chromatic
+        if: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.projectToken }}
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
+          onlyChanged: true
