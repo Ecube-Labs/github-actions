@@ -31,17 +31,19 @@ jobs:
         run: npm ci
         if: steps.node-cache.outputs.cache-hit != 'true'
 
-      - name: Publish to Chromatic (master/develop)
-        if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' }}
+      # develop은 배포하지 않는다. 개발시 필요한 대부분은 각 커밋을 참조해서 볼 수 있기 때문에 필요하지 않다고 판단된다.
+      - name: Publish to Chromatic (master)
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: chromaui/action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.projectToken }}
-          autoAcceptChanges: true # master/develop 브랜치는 변경사항 모두 accept
+          autoAcceptChanges: true # master 브랜치는 변경사항 모두 accept
           exitZeroOnChanges: true
           exitOnceUploaded: true
           onlyChanged: true
 
+      # master/develop 브랜치는 배포하지 않는다.
       - name: Publish to Chromatic
         if: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/develop' }}
         uses: chromaui/action@v1
