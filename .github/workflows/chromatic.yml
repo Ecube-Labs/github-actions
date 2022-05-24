@@ -52,5 +52,4 @@ jobs:
           projectToken: ${{ secrets.projectToken }}
           exitZeroOnChanges: true
           exitOnceUploaded: true
-          onlyChanged: true
-          storybookBuildDir: storybook-static/ # HACK: https://github.com/chromaui/chromatic-cli/issues/530#issuecomment-1073067340 EM에서 동일한 현상이 일어나서 임시조치
+          # onlyChanged: true
