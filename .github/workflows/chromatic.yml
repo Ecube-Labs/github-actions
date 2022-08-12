@@ -10,7 +10,7 @@ on:
 
 jobs:
   deployment:
-    runs-on: ubuntu-latest
+    runs-on: ecubelabs
     steps:
       - uses: actions/checkout@v2
         with:
