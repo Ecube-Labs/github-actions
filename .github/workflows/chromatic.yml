@@ -10,22 +10,17 @@ on:
 
 jobs:
   deployment:
-    runs-on: ubuntu-latest
+    runs-on: ecubelabs
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # Required to retrieve git history
 
-      - name: Cache node modules
-        id: node-cache
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
+      - uses: actions/setup-node@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
+          node-version: 16
+          # node-version-file: '.nvmrc' # 모든 프로젝트에서 .nvmrc 사용하면 프로젝트에서 사용하는 버전으로 설치할수 있다.
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
